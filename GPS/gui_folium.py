@@ -11,10 +11,18 @@ import webbrowser
 import folium
 import os
 
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium import webdriver
+
 def show_map(latitude, longitude):
     # Create a folium map centered at the specified location
     map_center = [latitude, longitude]
     my_map = folium.Map(location=map_center, zoom_start=15)
+
+    # create a browser object    	
+    service = ChromeService(executable_path=ChromeDriverManager().install())
+    browser = webdriver.Chrome(service=service)
 
     # Add a marker at the specified location
     folium.Marker(location=map_center, popup="Location").add_to(my_map)
@@ -24,7 +32,8 @@ def show_map(latitude, longitude):
     my_map.save(map_filename)
 
     # Open the map in the default web browser
-    webbrowser.open('file://' + os.path.realpath(map_filename))
+    #webbrowser.open('file://' + os.path.realpath(map_filename))
+    browser.get('file://' + os.path.realpath(map_filename))
 
 def on_submit():
     try:
