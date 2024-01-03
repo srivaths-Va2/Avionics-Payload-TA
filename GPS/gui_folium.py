@@ -34,6 +34,8 @@ def show_map(latitude, longitude):
     # Open the map in the default web browser
     #webbrowser.open('file://' + os.path.realpath(map_filename))
     browser.get('file://' + os.path.realpath(map_filename))
+    while(True):
+        pass
 
 def on_submit():
     try:
