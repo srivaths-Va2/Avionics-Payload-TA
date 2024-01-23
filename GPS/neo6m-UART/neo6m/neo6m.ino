@@ -33,18 +33,22 @@ void loop()
 
 void displayInfo()
 {
-  Serial.print("Location: "); 
+  //Serial.print("Location: "); 
   if (gps.location.isValid())
   {
     Serial.print(gps.location.lat(), 6);
-    Serial.print(",");
-    Serial.print(gps.location.lng(), 6);
-  }
-  else
-  {
-    Serial.print("INVALID");
+    Serial.print("xxxx");                     // "xxxx" is used to differentiate between latitude and longitude while parsing serial input stream in python
+    Serial.println(gps.location.lng(), 6);
   }
 
+  
+  /*else
+  {
+    Serial.print("INVALID");
+    Serial.print("xxxx");
+  }*/
+
+/*
   Serial.print(F("  Date "));
   if (gps.date.isValid())
   {
@@ -61,4 +65,5 @@ void displayInfo()
 
   
   Serial.println();
+  */
 }

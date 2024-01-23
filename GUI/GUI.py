@@ -1,5 +1,7 @@
 import folium
 import time
+import serial
+#import schedule
 
 def refresh_html_page(html_file_path):
     with open(html_file_path, 'r') as file:
@@ -18,6 +20,36 @@ def update_map(gmap, latitude, longitude, popup_text):
     marker.add_to(gmap)
     gmap.center = [latitude, longitude]
     return gmap
+
+def GPS_to_Serial():
+    arduino = serial.Serial('com8', 9600)
+    print('Established serial connection to Arduino')
+
+    while True:
+        arduino_data = arduino.readline()
+
+        # Decode with error handling to replace invalid byte sequences
+        decoded_values = str(arduino_data[0:len(arduino_data)].decode("utf-8", errors='replace'))
+        list_values = decoded_values.split('xxxx')
+
+        '''
+        for item in list_values:
+            # Strip 'x' from both ends
+            cleaned_item = item.strip('x')
+
+            return cleaned_item
+
+            #print(f'Value: {cleaned_item}')
+
+        '''
+
+        time.sleep(1)  # Add a delay to control the rate of reading from Arduino
+        
+        return list_values
+
+    #arduino.close()
+    #print('Connection closed')
+    #print('<----------------------------->')
 
 
 
@@ -46,8 +78,8 @@ def main():
     try:
         while True:
             # Update the map with the current location
-            current_latitude = float(input("Enter current latitude: "))  # Replace with your method of getting latitude
-            current_longitude = float(input("Enter current longitude: "))  # Replace with your method of getting longitude
+            current_latitude = GPS_to_Serial()[0]  # Replace with your method of getting latitude
+            current_longitude = GPS_to_Serial()[1]  # Replace with your method of getting longitude
 
             popup_text = f"Latitude: {current_latitude}, Longitude: {current_longitude}"
             gmap = update_map(gmap, current_latitude, current_longitude, popup_text)
