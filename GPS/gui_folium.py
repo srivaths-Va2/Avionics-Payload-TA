@@ -10,6 +10,7 @@ from tkinter import ttk
 import webbrowser
 import folium
 import os
+import time
 
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -34,8 +35,7 @@ def show_map(latitude, longitude):
     # Open the map in the default web browser
     #webbrowser.open('file://' + os.path.realpath(map_filename))
     browser.get('file://' + os.path.realpath(map_filename))
-    while(True):
-        pass
+    time.sleep(5)
 
 def on_submit():
     try:

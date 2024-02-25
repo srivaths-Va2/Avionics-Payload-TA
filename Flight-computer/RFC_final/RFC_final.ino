@@ -4,7 +4,10 @@
 #include <SD.h>
 #include <SoftwareSerial.h>
 #include "String.h"
-
+#include <TinyGPSPlus.h>
+//Pin for GPS has to be changed
+static const int RXPin = 4, TXPin = 3;// Here we make pin 4 as RX of arduino & pin 3 as TX of arduino 
+static const uint32_t GPSBaud = 9600;
 /* Initializing the softwareserial interface for the xbee.
    Rx = D3 and Tx = D2 
  */
@@ -31,8 +34,13 @@ int j = 0;
 
 float lastalti;
 
+TinyGPSPlus gps;
+
+SoftwareSerial ss(RXPin, TXPin);
+
 SPISettings mySPISettings(500000, MSBFIRST, SPI_MODE3);   //Defining the configuration of SPI protocol
 void setup() {
+  ss.begin(GPSBaud);
   pinMode(7,OUTPUT);
     zigbee.begin(9600);
    zigbee.write("Avionics Bay is Armed!!!!");
@@ -102,6 +110,8 @@ zigbee.write("  \n   ");
 
 }
 
+
+
 void loop() {  
   
   altiReading = (readAltitudeValue(1013.25) - alti_offset);
@@ -147,20 +157,31 @@ void loop() {
   gForceZ = (AcZ - Az_offset)*(9.81/ 2048);
   zigbee.write("  ,  Acceleration X:   ");
   zigbee.print(AcX *(9.81/ 2048));
-  Serial.print("acx :");
-   Serial.print(AcX *(9.81/ 2048));
+  Serial.println("acx :");
+  Serial.println(AcX *(9.81/ 2048));
   
   zigbee.write(", Y:   ");
   zigbee.print(AcY *(9.81/ 2048));
-  Serial.print("acy :");
-   Serial.print(AcY *(9.81/ 2048));
+  Serial.println("acy :");
+  Serial.println(AcY *(9.81/ 2048));
   
   zigbee.write(", Z:   ");
   zigbee.print(AcZ *(9.81/ 2048));
   zigbee.write("  \n   ");
-  Serial.print("acz :");
+  Serial.println("acz :");
   Serial.print(AcZ *(9.81/ 2048));
   Serial.print("\n");
+
+  float lat=gps_latitude();//This recieves the values form the function
+  float lng=gps_longitude();
+  zigbee.print(lat);
+  zigbee.print(lng);
+  Serial.println("Latitude");
+  Serial.println(lat, 6); 
+  //Serial.print("xxxx");                     // "xxxx" is used to differentiate between latitude and longitude while parsing serial input stream in python //Should be changed
+  Serial.println("Longitude");
+  Serial.println(lng, 6); 
+  Serial.println("*********************************************************************************");
 
   lastalti =  (readAltitudeValue(1013.25) - alti_offset);
   delay(500);
@@ -341,8 +362,26 @@ unsigned int read_register(byte thisRegister)
   SPI.endTransaction();
   return (result);
 }
-
-
+//returns the latitude from the gps module
+float gps_latititude(){
+  float latitude;
+  while (ss.available() > 0)
+    if (gps.encode(ss.read()))
+      if (gps.location.isValid())
+        latitude=(gps.location.lat());
+  return latitude;
+}
+//returns the longitude from teh gps module
+float gps_longitude(){
+  float longitude;
+  while (ss.available() > 0)
+    if (gps.encode(ss.read()))
+      if (gps.location.isValid())
+    {
+       longitude=gps.location.lng();
+    }
+  return longitude;
+}
 
 void LogData(float altitudeValue,  float gForceX, float gForceY, float gForceZ){
   File dataFile = SD.open("rfcccc.txt", FILE_WRITE);
@@ -398,6 +437,7 @@ void logdaata_testing(){
       dataFile.close();
      
   }
+
 void logdaata(){
      File dataFile = SD.open("rfcccc.txt", FILE_WRITE);
    String dataString="";
@@ -421,3 +461,5 @@ void logdaata(){
     writeRegister(0x40, 0x00);   
   delayMicroseconds (1000);
 }
+
+
