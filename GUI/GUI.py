@@ -27,25 +27,27 @@ def GPS_to_Serial():
 
     while True:
         arduino_data = arduino.readline()
-
         # Decode with error handling to replace invalid byte sequences
         decoded_values = str(arduino_data[0:len(arduino_data)].decode("utf-8", errors='replace'))
-        list_values = decoded_values.split('xxxx')
+        if('xxxx' in decoded_values):
+            list_values = decoded_values.split('xxxx')
 
-        '''
-        for item in list_values:
-            # Strip 'x' from both ends
-            cleaned_item = item.strip('x')
+            '''
+            for item in list_values:
+                # Strip 'x' from both ends
+                cleaned_item = item.strip('x')
 
-            return cleaned_item
+                return cleaned_item
 
-            #print(f'Value: {cleaned_item}')
+                #print(f'Value: {cleaned_item}')
 
-        '''
+            '''
 
-        time.sleep(1)  # Add a delay to control the rate of reading from Arduino
+            time.sleep(1)  # Add a delay to control the rate of reading from Arduino
         
-        return list_values
+            return list_values
+        else:
+            continue
 
     #arduino.close()
     #print('Connection closed')
